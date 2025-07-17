@@ -15,6 +15,8 @@ struct ContentView: View {
     @State private var lastMessageNumber = -1
     @State private var audioPlayer: AVAudioPlayer! //implicitly unwrapping an optional
     @State private var lastSoundNumber = -1
+    let numberOfImages = 10
+    let numberofSounds = 6
     
     
     var body: some View {
@@ -39,30 +41,19 @@ struct ContentView: View {
             Spacer()
             
             Button("Show Messsage") {
-                var messageNumber = 0
-                var imageNumber = 0
-                var soundNumber = 0
-                var soundName = "sound\(soundNumber)"
+               var soundName = ""
                 let messages : [String] = ["You are Awesome!", "You are Great!","You are Amazing", "You Rock", "God's got you", "Exceptional is your middle name!"]
-                
-                repeat {
-                    messageNumber = Int.random(in: 0...messages.count-1 )
+
+                lastMessageNumber = nonRepeatingRandom(lastNumber: lastMessageNumber, upperBonds: messages.count-1)
                
-                } while messageNumber == lastMessageNumber
-                lastMessageNumber = messageNumber
                 
-                repeat {
-                    imageNumber = Int.random(in: 0...9)
-                } while imageNumber == lastImageNumber
-                lastImageNumber = imageNumber
+                lastImageNumber = nonRepeatingRandom(lastNumber: lastImageNumber, upperBonds: numberOfImages-1)
             
-                message = messages[messageNumber]
-                imageName = "image" + String(imageNumber)
-                repeat {
-                    soundNumber = Int.random(in: 0...5)
-                } while soundNumber == lastSoundNumber
-                soundName = "sound\(soundNumber)"
-                lastSoundNumber = soundNumber
+                message = messages[lastMessageNumber]
+                imageName = "image" + String(lastImageNumber)
+
+                lastSoundNumber = nonRepeatingRandom(lastNumber: lastSoundNumber, upperBonds: numberofSounds-1)
+                soundName = "sound\(lastSoundNumber)"
                 
                 guard let soundFile = NSDataAsset(name: soundName) else {
                     print("😡 Could not read file named \(soundName)")
@@ -82,6 +73,14 @@ struct ContentView: View {
             
         }
         .padding()
+    }
+    func nonRepeatingRandom(lastNumber: Int, upperBonds: Int) -> Int {
+        var randomNumber: Int
+        repeat {
+            randomNumber = Int.random(in: 0...upperBonds)
+        }while randomNumber == lastNumber
+        
+        return randomNumber
     }
 }
 
