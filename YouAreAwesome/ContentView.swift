@@ -15,6 +15,7 @@ struct ContentView: View {
     @State private var lastMessageNumber = -1
     @State private var audioPlayer: AVAudioPlayer! //implicitly unwrapping an optional
     @State private var lastSoundNumber = -1
+    @State private var soundisOn: Bool = true
     let numberOfImages = 10
     let numberofSounds = 6
     
@@ -40,36 +41,53 @@ struct ContentView: View {
 
             Spacer()
             
-            Button("Show Messsage") {
-               var soundName = ""
-                let messages : [String] = ["You are Awesome!", "You are Great!","You are Amazing", "You Rock", "God's got you", "Exceptional is your middle name!"]
-
-                lastMessageNumber = nonRepeatingRandom(lastNumber: lastMessageNumber, upperBonds: messages.count-1)
-               
-                
-                lastImageNumber = nonRepeatingRandom(lastNumber: lastImageNumber, upperBonds: numberOfImages-1)
-            
-                message = messages[lastMessageNumber]
-                imageName = "image" + String(lastImageNumber)
-
-                lastSoundNumber = nonRepeatingRandom(lastNumber: lastSoundNumber, upperBonds: numberofSounds-1)
-                soundName = "sound\(lastSoundNumber)"
-                
-                guard let soundFile = NSDataAsset(name: soundName) else {
-                    print("😡 Could not read file named \(soundName)")
-                    return
-                }
-                do {
-                    audioPlayer = try AVAudioPlayer(data: soundFile.data)
-                    audioPlayer.play()
+            HStack {
+                Text("Sound on:")
+                Toggle("", isOn: $soundisOn)
+                    .labelsHidden()
+                    .onChange(of: soundisOn) {
+                        if audioPlayer != nil && audioPlayer.isPlaying {
+                            audioPlayer.stop()
+                        }
+                    }
+                Spacer()
+                Button("Show Messsage") {
+                    var soundName = ""
+                    let messages : [String] = ["You are Awesome!", "You are Great!","You are Amazing", "You Rock", "God's got you", "Exceptional is your middle name!"]
                     
-                } catch {
-                    print("😡 ERROR: \(error.localizedDescription) creating audioPlayer")
+                    lastMessageNumber = nonRepeatingRandom(lastNumber: lastMessageNumber, upperBonds: messages.count-1)
+                    
+                    
+                    lastImageNumber = nonRepeatingRandom(lastNumber: lastImageNumber, upperBonds: numberOfImages-1)
+                    
+                    message = messages[lastMessageNumber]
+                    imageName = "image" + String(lastImageNumber)
+                    
+                    lastSoundNumber = nonRepeatingRandom(lastNumber: lastSoundNumber, upperBonds: numberofSounds-1)
+                    soundName = "sound\(lastSoundNumber)"
+                    
+                    guard let soundFile = NSDataAsset(name: soundName) else {
+                        print("😡 Could not read file named \(soundName)")
+                        return
+                    }
+                    do {
+                        if audioPlayer != nil && audioPlayer.isPlaying {
+                            audioPlayer.stop()
+                        }
+                        if soundisOn {
+                            audioPlayer = try AVAudioPlayer(data: soundFile.data)
+                            audioPlayer.play()
+                        }
+                        
+                        
+                    } catch {
+                        print("😡 ERROR: \(error.localizedDescription) creating audioPlayer")
+                    }
+                    
                 }
-              
+                .buttonStyle(.borderedProminent)
+                .font(.title2)
             }
-            .buttonStyle(.borderedProminent)
-            .font(.title2)
             
         }
         .padding()
